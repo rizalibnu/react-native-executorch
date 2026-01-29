@@ -6,7 +6,7 @@ import ColorPalette from './colors';
 import ExecutorchLogo from './assets/executorch.svg';
 import { Quiz } from './screens/Quiz';
 import { initExecutorch } from 'react-native-executorch';
-import { ExpoResourceFetcher } from '@rn-executorch/expo-adapter';
+import { ExpoResourceFetcher } from '@react-native-executorch/expo-resource-fetcher';
 
 initExecutorch({
   resourceFetcher: ExpoResourceFetcher,
