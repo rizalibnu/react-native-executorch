@@ -96,3 +96,6 @@ codegen
 cstdint
 ocurred
 RNFS
+libfbjni
+libc
+gradlew
