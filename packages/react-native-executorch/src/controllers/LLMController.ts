@@ -21,42 +21,29 @@ export class LLMController {
   private toolsConfig: ToolsConfig | undefined;
   private tokenizerConfig: any;
   private onToken?: (token: string) => void;
-  private _response = '';
   private _isReady = false;
   private _isGenerating = false;
   private _messageHistory: Message[] = [];
 
   // User callbacks
   private tokenCallback: (token: string) => void;
-  private responseCallback: (response: string) => void;
   private messageHistoryCallback: (messageHistory: Message[]) => void;
   private isReadyCallback: (isReady: boolean) => void;
   private isGeneratingCallback: (isGenerating: boolean) => void;
 
   constructor({
     tokenCallback,
-    responseCallback,
     messageHistoryCallback,
     isReadyCallback,
     isGeneratingCallback,
   }: {
     tokenCallback?: (token: string) => void;
-    responseCallback?: (response: string) => void;
     messageHistoryCallback?: (messageHistory: Message[]) => void;
     isReadyCallback?: (isReady: boolean) => void;
     isGeneratingCallback?: (isGenerating: boolean) => void;
   }) {
-    if (responseCallback !== undefined) {
-      Logger.warn(
-        'Passing response callback is deprecated and will be removed in 0.6.0'
-      );
-    }
     this.tokenCallback = (token) => {
       tokenCallback?.(token);
-    };
-    this.responseCallback = (response) => {
-      this._response = response;
-      responseCallback?.(response);
     };
     this.messageHistoryCallback = (messageHistory) => {
       this._messageHistory = messageHistory;
@@ -72,15 +59,14 @@ export class LLMController {
     };
   }
 
-  public get response() {
-    return this._response;
-  }
   public get isReady() {
     return this._isReady;
   }
+
   public get isGenerating() {
     return this._isGenerating;
   }
+
   public get messageHistory() {
     return this._messageHistory;
   }
@@ -97,7 +83,6 @@ export class LLMController {
     onDownloadProgressCallback?: (downloadProgress: number) => void;
   }) {
     // reset inner state when loading new model
-    this.responseCallback('');
     this.messageHistoryCallback(this.chatConfig.initialMessageHistory);
     this.isGeneratingCallback(false);
     this.isReadyCallback(false);
@@ -140,24 +125,12 @@ export class LLMController {
           return;
         }
 
-        if (
-          SPECIAL_TOKENS.EOS_TOKEN in this.tokenizerConfig &&
-          data.indexOf(this.tokenizerConfig.eos_token) >= 0
-        ) {
-          data = data.replaceAll(this.tokenizerConfig.eos_token, '');
-        }
-        if (
-          SPECIAL_TOKENS.PAD_TOKEN in this.tokenizerConfig &&
-          data.indexOf(this.tokenizerConfig.pad_token) >= 0
-        ) {
-          data = data.replaceAll(this.tokenizerConfig.pad_token, '');
-        }
-        if (data.length === 0) {
+        const filtered = this.filterSpecialTokens(data);
+
+        if (filtered.length === 0) {
           return;
         }
-
-        this.tokenCallback(data);
-        this.responseCallback(this._response + data);
+        this.tokenCallback(filtered);
       };
     } catch (e) {
       this.isReadyCallback(false);
@@ -201,9 +174,25 @@ export class LLMController {
     }
 
     // reset inner state when loading new configuration
-    this.responseCallback('');
     this.messageHistoryCallback(this.chatConfig.initialMessageHistory);
     this.isGeneratingCallback(false);
+  }
+
+  private filterSpecialTokens(text: string): string {
+    let filtered = text;
+    if (
+      SPECIAL_TOKENS.EOS_TOKEN in this.tokenizerConfig &&
+      this.tokenizerConfig.eos_token
+    ) {
+      filtered = filtered.replaceAll(this.tokenizerConfig.eos_token, '');
+    }
+    if (
+      SPECIAL_TOKENS.PAD_TOKEN in this.tokenizerConfig &&
+      this.tokenizerConfig.pad_token
+    ) {
+      filtered = filtered.replaceAll(this.tokenizerConfig.pad_token, '');
+    }
+    return filtered;
   }
 
   public delete() {
@@ -213,6 +202,7 @@ export class LLMController {
         'You cannot delete the model now. You need ot interrupt it first.'
       );
     }
+
     this.onToken = () => {};
     if (this.nativeModule) {
       this.nativeModule.unload();
@@ -221,7 +211,7 @@ export class LLMController {
     this.isGeneratingCallback(false);
   }
 
-  public async forward(input: string) {
+  public async forward(input: string): Promise<string> {
     if (!this._isReady) {
       throw new RnExecutorchError(
         RnExecutorchErrorCode.ModuleNotLoaded,
@@ -235,9 +225,9 @@ export class LLMController {
       );
     }
     try {
-      this.responseCallback('');
       this.isGeneratingCallback(true);
-      await this.nativeModule.generate(input, this.onToken);
+      const response = await this.nativeModule.generate(input, this.onToken);
+      return this.filterSpecialTokens(response);
     } catch (e) {
       throw parseUnknownError(e);
     } finally {
@@ -265,7 +255,24 @@ export class LLMController {
     return this.nativeModule.getGeneratedTokenCount();
   }
 
-  public async generate(messages: Message[], tools?: LLMTool[]) {
+  public getPromptTokenCount(): number {
+    if (!this.nativeModule) {
+      throw new RnExecutorchError(
+        RnExecutorchErrorCode.ModuleNotLoaded,
+        "Cannot get prompt token count for a model that's not loaded."
+      );
+    }
+    return this.nativeModule.getPromptTokenCount();
+  }
+
+  public getTotalTokenCount(): number {
+    return this.getGeneratedTokenCount() + this.getPromptTokenCount();
+  }
+
+  public async generate(
+    messages: Message[],
+    tools?: LLMTool[]
+  ): Promise<string> {
     if (!this._isReady) {
       throw new RnExecutorchError(
         RnExecutorchErrorCode.ModuleNotLoaded,
@@ -292,10 +299,10 @@ export class LLMController {
       { tools_in_user_message: false, add_generation_prompt: true }
     );
 
-    await this.forward(renderedChat);
+    return await this.forward(renderedChat);
   }
 
-  public async sendMessage(message: string) {
+  public async sendMessage(message: string): Promise<string> {
     this.messageHistoryCallback([
       ...this._messageHistory,
       { content: message, role: 'user' },
@@ -306,19 +313,22 @@ export class LLMController {
       ...this._messageHistory.slice(-this.chatConfig.contextWindowLength),
     ];
 
-    await this.generate(messageHistoryWithPrompt, this.toolsConfig?.tools);
+    const response = await this.generate(
+      messageHistoryWithPrompt,
+      this.toolsConfig?.tools
+    );
 
     if (!this.toolsConfig || this.toolsConfig.displayToolCalls) {
       this.messageHistoryCallback([
         ...this._messageHistory,
-        { content: this._response, role: 'assistant' },
+        { content: response, role: 'assistant' },
       ]);
     }
     if (!this.toolsConfig) {
-      return;
+      return response;
     }
 
-    const toolCalls = parseToolCall(this._response);
+    const toolCalls = parseToolCall(response);
 
     for (const toolCall of toolCalls) {
       this.toolsConfig
@@ -332,6 +342,7 @@ export class LLMController {
           }
         });
     }
+    return response;
   }
 
   public deleteMessage(index: number) {
@@ -350,7 +361,7 @@ export class LLMController {
   ): string {
     if (!tokenizerConfig.chat_template) {
       throw new RnExecutorchError(
-        RnExecutorchErrorCode.InvalidConfig,
+        RnExecutorchErrorCode.TokenizerError,
         "Tokenizer config doesn't include chat_template"
       );
     }

@@ -99,3 +99,9 @@ RNFS
 libfbjni
 libc
 gradlew
+AEROPLANE
+DININGTABLE
+POTTEDPLANT
+TVMONITOR
+sublist
+TTFT

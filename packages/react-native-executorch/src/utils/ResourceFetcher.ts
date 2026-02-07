@@ -41,6 +41,12 @@ export interface ResourceFetcherAdapter {
   readAsString(path: string): Promise<string>;
 }
 
+/**
+ * This module provides functions to download and work with downloaded files stored in the application's document directory inside the `react-native-executorch/` directory.
+ * These utilities can help you manage your storage and clean up the downloaded files when they are no longer needed.
+ *
+ * @category Utilities - General
+ */
 export class ResourceFetcher {
   private static adapter: ResourceFetcherAdapter | null = null;
 
@@ -62,6 +68,14 @@ export class ResourceFetcher {
     return this.adapter;
   }
 
+  /**
+   * Fetches resources (remote URLs, local files or embedded assets), downloads or stores them locally for use by React Native ExecuTorch.
+   *
+   * @param callback - Optional callback to track progress of all downloads, reported between 0 and 1.
+   * @param sources - Multiple resources that can be strings, asset references, or objects.
+   * @returns If the fetch was successful, it returns a promise which resolves to an array of local file paths for the downloaded/stored resources (without file:// prefix).
+   * If the fetch was interrupted by `pauseFetching` or `cancelFetching`, it returns a promise which resolves to `null`.
+   */
   static async fetch(
     callback: (downloadProgress: number) => void = () => {},
     ...sources: ResourceSource[]

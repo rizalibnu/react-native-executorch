@@ -52,7 +52,7 @@ export const errorDefinitions = {
    */
   WrongDimensions: 0x74,
   /*
-   * Thrown when the input passed to our APIs is invalid, for example when passing an empty message aray to LLM's generate().
+   * Thrown when the input passed to our APIs is invalid, for example when passing an empty message array to LLM's generate().
    */
   InvalidUserInput: 0x75,
   /*
@@ -60,6 +60,10 @@ export const errorDefinitions = {
    */
   DownloadInterrupted: 0x76,
 
+  /*
+   * Thrown when an error occurs with the tokenizer or tokenization process.
+   */
+  TokenizerError: 0xa7,
   // INFO: SpeechToText errors
   /*
    * Thrown when there's a configuration mismatch between multilingual and language settings in Speech-to-Text models.
@@ -106,30 +110,85 @@ export const errorDefinitions = {
 
   // ExecuTorch mapped errors
   // Based on: https://github.com/pytorch/executorch/blob/main/runtime/core/error.h
+
   // System errors
+  /**
+   * Status indicating a successful operation.
+   */
   Ok: 0x00,
+  /**
+   * An internal error occurred.
+   */
   Internal: 0x01,
+  /**
+   * Status indicating the executor is in an invalid state for a targeted operation.
+   */
   InvalidState: 0x02,
+  /**
+   * Status indicating there are no more steps of execution to run
+   */
   EndOfMethod: 0x03,
 
   // Logical errors
+  /**
+   * Operation is not supported in the current context.
+   */
   NotSupported: 0x10,
+  /**
+   * Operation is not yet implemented.
+   */
   NotImplemented: 0x11,
+  /**
+   * User provided an invalid argument.
+   */
   InvalidArgument: 0x12,
+  /**
+   * Object is an invalid type for the operation.
+   */
   InvalidType: 0x13,
+  /**
+   * Operator(s) missing in the operator registry.
+   */
   OperatorMissing: 0x14,
 
   // Resource errors
+  /**
+   * Requested resource could not be found.
+   */
   NotFound: 0x20,
+  /**
+   * Could not allocate the requested memory.
+   */
   MemoryAllocationFailed: 0x21,
+  /**
+   * Could not access a resource.
+   */
   AccessFailed: 0x22,
+  /**
+   * Error caused by the contents of a program.
+   */
   InvalidProgram: 0x23,
+  /**
+   * Error caused by the contents of external data.
+   */
   InvalidExternalData: 0x24,
+  /**
+   * Does not have enough resources to perform the requested operation.
+   */
   OutOfResources: 0x25,
 
   // Delegate errors
+  /**
+   * Init stage: Backend receives an incompatible delegate version.
+   */
   DelegateInvalidCompatibility: 0x30,
+  /**
+   * Init stage: Backend fails to allocate memory.
+   */
   DelegateMemoryAllocationFailed: 0x31,
+  /**
+   * Execute stage: The handle is invalid.
+   */
   DelegateInvalidHandle: 0x32,
 } as const;
 
