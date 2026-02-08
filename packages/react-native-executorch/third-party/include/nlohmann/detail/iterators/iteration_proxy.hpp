@@ -58,8 +58,9 @@ public:
   explicit iteration_proxy_value(
       IteratorType it,
       std::size_t array_index_ =
-          0) noexcept(std::is_nothrow_move_constructible<IteratorType>::value &&
-                      std::is_nothrow_default_constructible<string_type>::value)
+          0) noexcept(std::is_nothrow_move_constructible<IteratorType>::value
+                          &&std::is_nothrow_default_constructible<
+                              string_type>::value)
       : anchor(std::move(it)), array_index(array_index_) {}
 
   iteration_proxy_value(iteration_proxy_value const &) = default;
@@ -67,12 +68,12 @@ public:
   // older GCCs are a bit fussy and require explicit noexcept specifiers on
   // defaulted functions
   iteration_proxy_value(iteration_proxy_value &&) noexcept(
-      std::is_nothrow_move_constructible<IteratorType>::value &&
-      std::is_nothrow_move_constructible<string_type>::value) =
+      std::is_nothrow_move_constructible<IteratorType>::value
+          &&std::is_nothrow_move_constructible<string_type>::value) =
       default; // NOLINT(hicpp-noexcept-move,performance-noexcept-move-constructor,cppcoreguidelines-noexcept-move-operations)
   iteration_proxy_value &operator=(iteration_proxy_value &&) noexcept(
-      std::is_nothrow_move_assignable<IteratorType>::value &&
-      std::is_nothrow_move_assignable<string_type>::value) =
+      std::is_nothrow_move_assignable<IteratorType>::value
+          &&std::is_nothrow_move_assignable<string_type>::value) =
       default; // NOLINT(hicpp-noexcept-move,performance-noexcept-move-constructor,cppcoreguidelines-noexcept-move-operations)
   ~iteration_proxy_value() = default;
 

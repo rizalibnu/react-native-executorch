@@ -76,7 +76,7 @@ public:
     return *this;
   }
 
-  primitive_iterator_t operator++(int) & noexcept // NOLINT(cert-dcl21-cpp)
+  primitive_iterator_t operator++(int) &noexcept // NOLINT(cert-dcl21-cpp)
   {
     auto result = *this;
     ++m_it;
@@ -88,7 +88,7 @@ public:
     return *this;
   }
 
-  primitive_iterator_t operator--(int) & noexcept // NOLINT(cert-dcl21-cpp)
+  primitive_iterator_t operator--(int) &noexcept // NOLINT(cert-dcl21-cpp)
   {
     auto result = *this;
     --m_it;

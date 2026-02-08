@@ -966,9 +966,10 @@ private:
     }
 
     // all other characters are rejected outside scan_number()
-    default:              // LCOV_EXCL_LINE
-      JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                          // LCOV_EXCL_LINE
+    default: // LCOV_EXCL_LINE
+      JSON_ASSERT(
+          false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                  // LCOV_EXCL_LINE
     }
 
   scan_number_minus:
@@ -1369,11 +1370,10 @@ public:
       if (static_cast<unsigned char>(c) <= '\x1F') {
         // escape control characters
         std::array<char, 9> cs{{}};
-        static_cast<void>((
-            std::
-                snprintf)(cs.data(), cs.size(), "<U+%.4X>",
-                          static_cast<unsigned char>(
-                              c))); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+        static_cast<void>((std::snprintf)(
+            cs.data(), cs.size(), "<U+%.4X>",
+            static_cast<unsigned char>(
+                c))); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
         result += cs.data();
       } else {
         // add character as is

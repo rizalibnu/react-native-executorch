@@ -326,9 +326,10 @@ public:
       return;
     }
 
-    default:              // LCOV_EXCL_LINE
-      JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                          // LCOV_EXCL_LINE
+    default: // LCOV_EXCL_LINE
+      JSON_ASSERT(
+          false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                  // LCOV_EXCL_LINE
     }
   }
 
@@ -425,13 +426,10 @@ public:
               bytes += 6;
             } else {
               // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-              static_cast<void>(
-                  (std::snprintf)(string_buffer.data() + bytes, 13,
-                                  "\\u%04x\\u%04x",
-                                  static_cast<std::uint16_t>(
-                                      0xD7C0u + (codepoint >> 10u)),
-                                  static_cast<std::uint16_t>(
-                                      0xDC00u + (codepoint & 0x3FFu))));
+              static_cast<void>((std::snprintf)(
+                  string_buffer.data() + bytes, 13, "\\u%04x\\u%04x",
+                  static_cast<std::uint16_t>(0xD7C0u + (codepoint >> 10u)),
+                  static_cast<std::uint16_t>(0xDC00u + (codepoint & 0x3FFu))));
               bytes += 12;
             }
           } else {
@@ -521,9 +519,10 @@ public:
           break;
         }
 
-        default:              // LCOV_EXCL_LINE
-          JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                              // LCOV_EXCL_LINE
+        default: // LCOV_EXCL_LINE
+          JSON_ASSERT(
+              false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                      // LCOV_EXCL_LINE
         }
         break;
       }
@@ -575,9 +574,10 @@ public:
         break;
       }
 
-      default:              // LCOV_EXCL_LINE
-        JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                            // LCOV_EXCL_LINE
+      default: // LCOV_EXCL_LINE
+        JSON_ASSERT(
+            false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                    // LCOV_EXCL_LINE
       }
     }
   }
@@ -905,9 +905,10 @@ private:
    * Must never be called.
    */
   number_unsigned_t remove_sign(number_unsigned_t x) {
-    JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                        // LCOV_EXCL_LINE
-    return x; // LCOV_EXCL_LINE
+    JSON_ASSERT(
+        false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                // LCOV_EXCL_LINE
+    return x;   // LCOV_EXCL_LINE
   }
 
   /*

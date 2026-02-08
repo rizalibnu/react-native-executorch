@@ -388,8 +388,8 @@ public:
 
   // Swap, standard semantics
   void swap(optional &rhs) noexcept(
-      std::is_nothrow_move_constructible<T>::value &&
-      type_traits_internal::IsNothrowSwappable<T>::value) {
+      std::is_nothrow_move_constructible<T>::value
+          &&type_traits_internal::IsNothrowSwappable<T>::value) {
     if (*this) {
       if (rhs) {
         type_traits_internal::Swap(**this, *rhs);
