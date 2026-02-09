@@ -976,7 +976,7 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 #error __EMSCRIPTEN_tiny__ is too big to fit in ABSL_INTERNAL_EMSCRIPTEN_VERSION
 #endif
 #define ABSL_INTERNAL_EMSCRIPTEN_VERSION                                       \
-  ((__EMSCRIPTEN_major__) * 1000000 + (__EMSCRIPTEN_minor__) * 1000 +          \
+  ((__EMSCRIPTEN_major__)*1000000 + (__EMSCRIPTEN_minor__)*1000 +              \
    (__EMSCRIPTEN_tiny__))
 #endif
 #endif

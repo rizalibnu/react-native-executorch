@@ -53,7 +53,7 @@
 #undef JSON_HEDLEY_VERSION_ENCODE
 #endif
 #define JSON_HEDLEY_VERSION_ENCODE(major, minor, revision)                     \
-  (((major) * 1000000) + ((minor) * 1000) + (revision))
+  (((major)*1000000) + ((minor)*1000) + (revision))
 
 #if defined(JSON_HEDLEY_VERSION_DECODE_MAJOR)
 #undef JSON_HEDLEY_VERSION_DECODE_MAJOR
@@ -199,7 +199,7 @@
 #elif defined(__SUNPRO_C)
 #define JSON_HEDLEY_SUNPRO_VERSION                                             \
   JSON_HEDLEY_VERSION_ENCODE((__SUNPRO_C >> 8) & 0xf, (__SUNPRO_C >> 4) & 0xf, \
-                             (__SUNPRO_C) & 0xf)
+                             (__SUNPRO_C)&0xf)
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC > 0x1000)
 #define JSON_HEDLEY_SUNPRO_VERSION                                             \
   JSON_HEDLEY_VERSION_ENCODE(                                                  \
@@ -209,7 +209,7 @@
 #elif defined(__SUNPRO_CC)
 #define JSON_HEDLEY_SUNPRO_VERSION                                             \
   JSON_HEDLEY_VERSION_ENCODE((__SUNPRO_CC >> 8) & 0xf,                         \
-                             (__SUNPRO_CC >> 4) & 0xf, (__SUNPRO_CC) & 0xf)
+                             (__SUNPRO_CC >> 4) & 0xf, (__SUNPRO_CC)&0xf)
 #endif
 
 #if defined(JSON_HEDLEY_SUNPRO_VERSION_CHECK)
@@ -1975,13 +1975,13 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 #if defined(__INTPTR_TYPE__)
 #define JSON_HEDLEY_IS_CONSTEXPR_(expr)                                        \
   __builtin_types_compatible_p(                                                \
-      __typeof__((1 ? (void *)((__INTPTR_TYPE__)((expr) * 0)) : (int *)0)),    \
+      __typeof__((1 ? (void *)((__INTPTR_TYPE__)((expr)*0)) : (int *)0)),      \
       int *)
 #else
 #include <stdint.h>
 #define JSON_HEDLEY_IS_CONSTEXPR_(expr)                                        \
   __builtin_types_compatible_p(                                                \
-      __typeof__((1 ? (void *)((intptr_t)((expr) * 0)) : (int *)0)), int *)
+      __typeof__((1 ? (void *)((intptr_t)((expr)*0)) : (int *)0)), int *)
 #endif
 #elif (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) &&           \
        !defined(JSON_HEDLEY_SUNPRO_VERSION) &&                                 \
@@ -1995,13 +1995,12 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     JSON_HEDLEY_ARM_VERSION_CHECK(5, 3, 0)
 #if defined(__INTPTR_TYPE__)
 #define JSON_HEDLEY_IS_CONSTEXPR_(expr)                                        \
-  _Generic((1 ? (void *)((__INTPTR_TYPE__)((expr) * 0)) : (int *)0),           \
-      int *: 1,                                                                \
-      void *: 0)
+  _Generic((1 ? (void *)((__INTPTR_TYPE__)((expr)*0)) : (int *)0), int * : 1,  \
+           void * : 0)
 #else
 #include <stdint.h>
 #define JSON_HEDLEY_IS_CONSTEXPR_(expr)                                        \
-  _Generic((1 ? (void *)((intptr_t)*0) : (int *)0), int *: 1, void *: 0)
+  _Generic((1 ? (void *)((intptr_t)*0) : (int *)0), int * : 1, void * : 0)
 #endif
 #elif defined(JSON_HEDLEY_GCC_VERSION) ||                                      \
     defined(JSON_HEDLEY_INTEL_VERSION) ||                                      \
@@ -2013,7 +2012,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     defined(JSON_HEDLEY_TI_CL7X_VERSION) ||                                    \
     defined(JSON_HEDLEY_TI_CLPRU_VERSION) || defined(__clang__)
 #define JSON_HEDLEY_IS_CONSTEXPR_(expr)                                        \
-  (sizeof(void) != sizeof(*(1 ? ((void *)((expr) * 0L))                        \
+  (sizeof(void) != sizeof(*(1 ? ((void *)((expr)*0L))                          \
                               : ((struct { char v[sizeof(void) * 2]; } *)1))))
 #endif
 #endif
@@ -2139,12 +2138,14 @@ JSON_HEDLEY_DIAGNOSTIC_POP
 #if JSON_HEDLEY_HAS_WARNING("-Wgcc-compat")
 #define JSON_HEDLEY_REQUIRE(expr)                                              \
   JSON_HEDLEY_DIAGNOSTIC_PUSH                                                  \
-  _Pragma("clang diagnostic ignored \"-Wgcc-compat\"") __attribute__((         \
-      diagnose_if(!(expr), #expr, "error"))) JSON_HEDLEY_DIAGNOSTIC_POP
+  _Pragma("clang diagnostic ignored \"-Wgcc-compat\"")                         \
+      __attribute__((diagnose_if(!(expr), #expr, "error")))                    \
+      JSON_HEDLEY_DIAGNOSTIC_POP
 #define JSON_HEDLEY_REQUIRE_MSG(expr, msg)                                     \
   JSON_HEDLEY_DIAGNOSTIC_PUSH                                                  \
-  _Pragma("clang diagnostic ignored \"-Wgcc-compat\"") __attribute__((         \
-      diagnose_if(!(expr), msg, "error"))) JSON_HEDLEY_DIAGNOSTIC_POP
+  _Pragma("clang diagnostic ignored \"-Wgcc-compat\"")                         \
+      __attribute__((diagnose_if(!(expr), msg, "error")))                      \
+      JSON_HEDLEY_DIAGNOSTIC_POP
 #else
 #define JSON_HEDLEY_REQUIRE(expr)                                              \
   __attribute__((diagnose_if(!(expr), #expr, "error")))

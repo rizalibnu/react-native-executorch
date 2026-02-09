@@ -132,8 +132,9 @@ public:
 
     case input_format_t::json: // LCOV_EXCL_LINE
     default:                   // LCOV_EXCL_LINE
-      JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                          // LCOV_EXCL_LINE
+      JSON_ASSERT(
+          false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                  // LCOV_EXCL_LINE
     }
 
     // strict mode: next byte must be EOF
@@ -347,11 +348,10 @@ private:
     default: // anything else not supported (yet)
     {
       std::array<char, 3> cr{{}};
-      static_cast<void>((
-          std::
-              snprintf)(cr.data(), cr.size(), "%.2hhX",
-                        static_cast<unsigned char>(
-                            element_type))); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+      static_cast<void>((std::snprintf)(
+          cr.data(), cr.size(), "%.2hhX",
+          static_cast<unsigned char>(
+              element_type))); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
       const std::string cr_str{cr.data()};
       return sax->parse_error(
           element_type_parse_position, cr_str,
@@ -852,9 +852,10 @@ private:
         return get_cbor_binary(b) && sax->binary(b);
       }
 
-      default:              // LCOV_EXCL_LINE
-        JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                            // LCOV_EXCL_LINE
+      default: // LCOV_EXCL_LINE
+        JSON_ASSERT(
+            false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                    // LCOV_EXCL_LINE
         return false; // LCOV_EXCL_LINE
       }
     }
@@ -2071,8 +2072,9 @@ private:
                     "count in an optimized container must be positive", "size"),
                 nullptr));
       }
-      result = static_cast<std::size_t>(number); // NOLINT(bugprone-signed-char-misuse,cert-str34-c):
-                                                 // number is not a char
+      result = static_cast<std::size_t>(
+          number); // NOLINT(bugprone-signed-char-misuse,cert-str34-c):
+                   // number is not a char
       return true;
     }
 
@@ -2987,11 +2989,10 @@ private:
   */
   std::string get_token_string() const {
     std::array<char, 3> cr{{}};
-    static_cast<void>((
-        std::
-            snprintf)(cr.data(), cr.size(), "%.2hhX",
-                      static_cast<unsigned char>(
-                          current))); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+    static_cast<void>((std::snprintf)(
+        cr.data(), cr.size(), "%.2hhX",
+        static_cast<unsigned char>(
+            current))); // NOLINT(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     return std::string{cr.data()};
   }
 
@@ -3029,8 +3030,9 @@ private:
 
     case input_format_t::json: // LCOV_EXCL_LINE
     default:                   // LCOV_EXCL_LINE
-      JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                          // LCOV_EXCL_LINE
+      JSON_ASSERT(
+          false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                  // LCOV_EXCL_LINE
     }
 
     return concat(error_msg, ' ', context, ": ", detail);

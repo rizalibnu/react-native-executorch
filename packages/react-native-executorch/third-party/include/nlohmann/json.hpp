@@ -732,8 +732,8 @@ private:
     // been invalidated; see https://github.com/nlohmann/json/issues/2962
 #ifdef JSON_HEDLEY_MSVC_VERSION
 #pragma warning(push)
-#pragma warning(disable                                                        \
-                : 4127) // ignore warning to replace if with if constexpr
+#pragma warning(                                                               \
+    disable : 4127) // ignore warning to replace if with if constexpr
 #endif
     if (detail::is_ordered_map<object_t>::value) {
       set_parents();
@@ -858,9 +858,10 @@ public:
     case value_t::discarded:
       m_data.m_type = value_t::discarded;
       break;
-    default:              // LCOV_EXCL_LINE
-      JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                          // LCOV_EXCL_LINE
+    default: // LCOV_EXCL_LINE
+      JSON_ASSERT(
+          false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                  // LCOV_EXCL_LINE
     }
     JSON_ASSERT(m_data.m_type == val.type());
     set_parents();
@@ -1179,11 +1180,11 @@ public:
   /// @brief copy assignment
   /// @sa https://json.nlohmann.me/api/basic_json/operator=/
   basic_json &operator=(basic_json other) noexcept(
-      std::is_nothrow_move_constructible<value_t>::value &&
-      std::is_nothrow_move_assignable<value_t>::value &&
-      std::is_nothrow_move_constructible<json_value>::value &&
-      std::is_nothrow_move_assignable<json_value>::value &&
-      std::is_nothrow_move_assignable<json_base_class_t>::value) {
+      std::is_nothrow_move_constructible<
+          value_t>::value &&std::is_nothrow_move_assignable<value_t>::value
+          &&std::is_nothrow_move_constructible<json_value>::value
+              &&std::is_nothrow_move_assignable<json_value>::value
+                  &&std::is_nothrow_move_assignable<json_base_class_t>::value) {
     // check that passed value is valid
     other.assert_invariant();
 
@@ -1673,7 +1674,8 @@ public:
 #if defined(JSON_HAS_CPP_14)
   constexpr
 #endif
-      auto get() const noexcept(noexcept(
+      auto
+      get() const noexcept(noexcept(
           std::declval<const basic_json_t &>().template get_impl<ValueType>(
               detail::priority_tag<4>{})))
           -> decltype(std::declval<const basic_json_t &>()
@@ -3382,11 +3384,11 @@ public:
   /// @brief exchanges the values
   /// @sa https://json.nlohmann.me/api/basic_json/swap/
   void swap(reference other) noexcept(
-      std::is_nothrow_move_constructible<value_t>::value &&
-      std::is_nothrow_move_assignable<value_t>::value &&
-      std::is_nothrow_move_constructible<json_value>::
-          value && // NOLINT(cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
-      std::is_nothrow_move_assignable<json_value>::value) {
+      std::is_nothrow_move_constructible<
+          value_t>::value &&std::is_nothrow_move_assignable<value_t>::value
+          &&std::is_nothrow_move_constructible<json_value>::value
+              && // NOLINT(cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
+                  std::is_nothrow_move_assignable<json_value>::value) {
     std::swap(m_data.m_type, other.m_data.m_type);
     std::swap(m_data.m_value, other.m_data.m_value);
 
@@ -3398,11 +3400,11 @@ public:
   /// @brief exchanges the values
   /// @sa https://json.nlohmann.me/api/basic_json/swap/
   friend void swap(reference left, reference right) noexcept(
-      std::is_nothrow_move_constructible<value_t>::value &&
-      std::is_nothrow_move_assignable<value_t>::value &&
-      std::is_nothrow_move_constructible<json_value>::
-          value && // NOLINT(cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
-      std::is_nothrow_move_assignable<json_value>::value) {
+      std::is_nothrow_move_constructible<
+          value_t>::value &&std::is_nothrow_move_assignable<value_t>::value
+          &&std::is_nothrow_move_constructible<json_value>::value
+              && // NOLINT(cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
+                  std::is_nothrow_move_assignable<json_value>::value) {
     left.swap(right);
   }
 
@@ -3581,8 +3583,9 @@ public:
       // - any operand is discarded
       // in legacy mode, discarded values are considered ordered if
       // an operation is computed as an odd number of inverses of others
-      static bool compares_unordered(const_reference lhs, const_reference rhs,
-                                     bool inverse = false) noexcept {
+      static bool
+      compares_unordered(const_reference lhs, const_reference rhs,
+                         bool inverse = false) noexcept {
     if ((lhs.is_number_float() && std::isnan(lhs.m_data.m_value.number_float) &&
          rhs.is_number()) ||
         (rhs.is_number_float() && std::isnan(rhs.m_data.m_value.number_float) &&
@@ -3622,8 +3625,8 @@ public:
   /// @brief comparison: equal
   /// @sa https://json.nlohmann.me/api/basic_json/operator_eq/
   template <typename ScalarType>
-    requires std::is_scalar_v<ScalarType>
-  bool operator==(ScalarType rhs) const noexcept {
+    requires std::is_scalar_v<ScalarType> bool
+  operator==(ScalarType rhs) const noexcept {
     return *this == basic_json(rhs);
   }
 
@@ -3677,8 +3680,8 @@ public:
   /// @brief comparison: less than or equal
   /// @sa https://json.nlohmann.me/api/basic_json/operator_le/
   template <typename ScalarType>
-    requires std::is_scalar_v<ScalarType>
-  bool operator<=(ScalarType rhs) const noexcept {
+    requires std::is_scalar_v<ScalarType> bool
+  operator<=(ScalarType rhs) const noexcept {
     return *this <= basic_json(rhs);
   }
 
@@ -3696,8 +3699,8 @@ public:
   /// @brief comparison: greater than or equal
   /// @sa https://json.nlohmann.me/api/basic_json/operator_ge/
   template <typename ScalarType>
-    requires std::is_scalar_v<ScalarType>
-  bool operator>=(ScalarType rhs) const noexcept {
+    requires std::is_scalar_v<ScalarType> bool
+  operator>=(ScalarType rhs) const noexcept {
     return *this >= basic_json(rhs);
   }
 #endif
@@ -4522,7 +4525,8 @@ public:
       3.11.0, basic_json::json_pointer or
                   nlohmann::json_pointer<
                       basic_json::string_t>) // NOLINT(readability/alt_tokens)
-  reference operator[](const ::nlohmann::json_pointer<BasicJsonType> &ptr) {
+  reference
+  operator[](const ::nlohmann::json_pointer<BasicJsonType> &ptr) {
     return ptr.get_unchecked(this);
   }
 
@@ -4696,8 +4700,9 @@ public:
       case value_t::binary:          // LCOV_EXCL_LINE
       case value_t::discarded:       // LCOV_EXCL_LINE
       default:                       // LCOV_EXCL_LINE
-        JSON_ASSERT(false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
-                            // LCOV_EXCL_LINE
+        JSON_ASSERT(
+            false); // NOLINT(cert-dcl03-c,hicpp-static-assert,misc-static-assert)
+                    // LCOV_EXCL_LINE
       }
     };
 
@@ -5088,13 +5093,15 @@ struct less<
 /// @brief exchanges the values of two JSON objects
 /// @sa https://json.nlohmann.me/api/basic_json/std_swap/
 NLOHMANN_BASIC_JSON_TPL_DECLARATION
-inline void
-swap(nlohmann::NLOHMANN_BASIC_JSON_TPL &j1,
-     nlohmann::NLOHMANN_BASIC_JSON_TPL &j2) noexcept( // NOLINT(readability-inconsistent-declaration-parameter-name,
-                                                      // cert-dcl58-cpp)
-    is_nothrow_move_constructible<nlohmann::NLOHMANN_BASIC_JSON_TPL>::
-        value && // NOLINT(misc-redundant-expression,cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
-    is_nothrow_move_assignable<nlohmann::NLOHMANN_BASIC_JSON_TPL>::value) {
+inline void swap(
+    nlohmann::NLOHMANN_BASIC_JSON_TPL &j1,
+    nlohmann::NLOHMANN_BASIC_JSON_TPL &
+        j2) noexcept( // NOLINT(readability-inconsistent-declaration-parameter-name,
+                      // cert-dcl58-cpp)
+    is_nothrow_move_constructible<nlohmann::NLOHMANN_BASIC_JSON_TPL>::value
+        && // NOLINT(misc-redundant-expression,cppcoreguidelines-noexcept-swap,performance-noexcept-swap)
+            is_nothrow_move_assignable<
+                nlohmann::NLOHMANN_BASIC_JSON_TPL>::value) {
   j1.swap(j2);
 }
 
