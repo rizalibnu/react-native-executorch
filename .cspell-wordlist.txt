@@ -6,6 +6,8 @@ torch
 huggingface
 bbox
 bboxes
+chatbots
+llms
 deeplab
 unsqueeze
 qlora
@@ -104,3 +106,9 @@ POTTEDPLANT
 TVMONITOR
 sublist
 TTFT
+timestamping
+logprob
+RNFS
+pogodin
+kesha
+antonov

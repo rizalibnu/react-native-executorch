@@ -1,7 +1,12 @@
-import { DecodingOptions, SpeechToTextModelConfig } from '../../types/stt';
+import {
+  DecodingOptions,
+  SpeechToTextModelConfig,
+  TranscriptionResult,
+} from '../../types/stt';
 import { ResourceFetcher } from '../../utils/ResourceFetcher';
 import { RnExecutorchErrorCode } from '../../errors/ErrorCodes';
 import { RnExecutorchError, parseUnknownError } from '../../errors/errorUtils';
+import { Logger } from '../../common/Logger';
 
 /**
  * Module for Speech to Text (STT) functionalities.
@@ -10,13 +15,7 @@ import { RnExecutorchError, parseUnknownError } from '../../errors/errorUtils';
  */
 export class SpeechToTextModule {
   private nativeModule: any;
-
   private modelConfig!: SpeechToTextModelConfig;
-
-  private textDecoder = new TextDecoder('utf-8', {
-    fatal: false,
-    ignoreBOM: true,
-  });
 
   /**
    * Loads the model specified by the config object.
@@ -29,41 +28,46 @@ export class SpeechToTextModule {
     model: SpeechToTextModelConfig,
     onDownloadProgressCallback: (progress: number) => void = () => {}
   ) {
-    this.modelConfig = model;
+    try {
+      this.modelConfig = model;
 
-    const tokenizerLoadPromise = ResourceFetcher.fetch(
-      undefined,
-      model.tokenizerSource
-    );
-    const encoderDecoderPromise = ResourceFetcher.fetch(
-      onDownloadProgressCallback,
-      model.encoderSource,
-      model.decoderSource
-    );
-    const [tokenizerSources, encoderDecoderResults] = await Promise.all([
-      tokenizerLoadPromise,
-      encoderDecoderPromise,
-    ]);
-    const encoderSource = encoderDecoderResults?.[0];
-    const decoderSource = encoderDecoderResults?.[1];
-    if (!encoderSource || !decoderSource || !tokenizerSources) {
-      throw new RnExecutorchError(
-        RnExecutorchErrorCode.DownloadInterrupted,
-        'The download has been interrupted. As a result, not every file was downloaded. Please retry the download.'
+      const tokenizerLoadPromise = ResourceFetcher.fetch(
+        undefined,
+        model.tokenizerSource
       );
+      const encoderDecoderPromise = ResourceFetcher.fetch(
+        onDownloadProgressCallback,
+        model.encoderSource,
+        model.decoderSource
+      );
+      const [tokenizerSources, encoderDecoderResults] = await Promise.all([
+        tokenizerLoadPromise,
+        encoderDecoderPromise,
+      ]);
+      const encoderSource = encoderDecoderResults?.[0];
+      const decoderSource = encoderDecoderResults?.[1];
+      if (!encoderSource || !decoderSource || !tokenizerSources) {
+        throw new RnExecutorchError(
+          RnExecutorchErrorCode.DownloadInterrupted,
+          'The download has been interrupted. As a result, not every file was downloaded. Please retry the download.'
+        );
+      }
+      this.nativeModule = await global.loadSpeechToText(
+        encoderSource,
+        decoderSource,
+        tokenizerSources[0]!
+      );
+    } catch (error) {
+      Logger.error('Load failed:', error);
+      throw parseUnknownError(error);
     }
-    this.nativeModule = await global.loadSpeechToText(
-      encoderSource,
-      decoderSource,
-      tokenizerSources[0]!
-    );
   }
 
   /**
    * Unloads the model from memory.
    */
   public delete(): void {
-    this.nativeModule.unload();
+    this.nativeModule?.unload();
   }
 
   /**
@@ -105,13 +109,13 @@ export class SpeechToTextModule {
   public async transcribe(
     waveform: Float32Array,
     options: DecodingOptions = {}
-  ): Promise<string> {
+  ): Promise<TranscriptionResult> {
     this.validateOptions(options);
-    const transcriptionBytes = await this.nativeModule.transcribe(
+    return await this.nativeModule.transcribe(
       waveform,
-      options.language || ''
+      options.language || '',
+      !!options.verbose
     );
-    return this.textDecoder.decode(new Uint8Array(transcriptionBytes));
   }
 
   /**
@@ -126,12 +130,20 @@ export class SpeechToTextModule {
    * @param options - Decoding options including language.
    * @returns An async generator yielding transcription updates.
    */
-  public async *stream(
-    options: DecodingOptions = {}
-  ): AsyncGenerator<{ committed: string; nonCommitted: string }> {
+  public async *stream(options: DecodingOptions = {}): AsyncGenerator<{
+    committed: TranscriptionResult;
+    nonCommitted: TranscriptionResult;
+  }> {
     this.validateOptions(options);
 
-    const queue: { committed: string; nonCommitted: string }[] = [];
+    const verbose = !!options.verbose;
+    const language = options.language || '';
+
+    const queue: {
+      committed: TranscriptionResult;
+      nonCommitted: TranscriptionResult;
+    }[] = [];
+
     let waiter: (() => void) | null = null;
     let finished = false;
     let error: unknown;
@@ -144,20 +156,25 @@ export class SpeechToTextModule {
     (async () => {
       try {
         await this.nativeModule.stream(
-          (committed: number[], nonCommitted: number[], isDone: boolean) => {
+          (
+            committed: TranscriptionResult,
+            nonCommitted: TranscriptionResult,
+            isDone: boolean
+          ) => {
             queue.push({
-              committed: this.textDecoder.decode(new Uint8Array(committed)),
-              nonCommitted: this.textDecoder.decode(
-                new Uint8Array(nonCommitted)
-              ),
+              committed,
+              nonCommitted,
             });
+
             if (isDone) {
               finished = true;
             }
             wake();
           },
-          options.language || ''
+          language,
+          verbose
         );
+
         finished = true;
         wake();
       } catch (e) {
